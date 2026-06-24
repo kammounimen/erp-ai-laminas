@@ -7,50 +7,246 @@
 $this->headTitle('Recherche - ERP-AI');
 ?>
 
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
 <style>
-    .erp-wrapper { font-family: -apple-system, Segoe UI, Roboto, sans-serif; padding: 24px; max-width: 1000px; margin: 0 auto; }
-    .erp-nav { display: flex; gap: 10px; margin-bottom: 24px; }
-    .erp-nav a { padding: 10px 16px; border-radius: 8px; text-decoration: none; background: #f1f5f9; color: #334155; font-weight: 500; font-size: 14px; }
-    .erp-nav a:hover { background: #e2e8f0; }
-    .search-box { display: flex; gap: 10px; margin-bottom: 24px; }
-    .search-box input {
-        flex: 1; padding: 14px 18px; border: 1px solid #d1d5db; border-radius: 10px; font-size: 15px;
-    }
-    .search-box input:focus { outline: none; border-color: #3b56e4; }
-    .btn-primary { background: #3b56e4; color: #fff; border: none; padding: 14px 28px; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; }
-    .ai-response {
-        background: #f5f7ff; border: 1px solid #c7d2fe; border-radius: 12px;
-        padding: 18px 22px; margin-bottom: 20px; color: #312e81; font-size: 15px;
-    }
-    .erp-table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; }
-    .erp-table th { background: #f8fafc; text-align: left; padding: 12px 16px; font-size: 13px; color: #64748b; }
-    .erp-table td { padding: 12px 16px; border-top: 1px solid #f1f5f9; font-size: 14px; }
-    .erp-empty { padding: 40px; text-align: center; color: #94a3b8; }
-    .erp-error { background: #fee2e2; color: #b91c1c; padding: 14px 18px; border-radius: 8px; margin-bottom: 20px; }
-    .badge { font-size: 11px; padding: 3px 8px; border-radius: 10px; background: #e0e7ff; color: #4338ca; font-weight: 600; }
+:root{
+    --erp-primary:#1e2a4a;
+    --erp-secondary:#334155;
+    --erp-accent:#6366f1;
+    --erp-light:#f8fafc;
+    --erp-border:#e2e8f0;
+}
+
+.erp-wrapper{
+    padding:30px;
+    background:#f8fafc;
+    min-height:100vh;
+}
+
+/* NAV (IDENTIQUE DASHBOARD) */
+.nav-buttons{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:25px;
+}
+
+.nav-buttons .btn{
+    border-radius:10px;
+    padding:10px 18px;
+    font-weight:600;
+}
+
+/* TITLE */
+.page-title{
+    font-size:32px;
+    font-weight:700;
+    color:var(--erp-primary);
+    margin:0;
+}
+
+.page-subtitle{
+    color:#64748b;
+    font-size:14px;
+    margin-bottom:20px;
+}
+
+/* SEARCH BOX MODERNE */
+.search-box{
+    display:flex;
+    gap:10px;
+    margin-bottom:24px;
+}
+
+.search-box input{
+    flex:1;
+    padding:14px 18px;
+    border:1px solid #d1d5db;
+    border-radius:12px;
+    font-size:15px;
+    background:#fff;
+}
+
+.search-box input:focus{
+    outline:none;
+    border-color:var(--erp-accent);
+    box-shadow:0 0 0 3px rgba(99,102,241,0.1);
+}
+
+.btn-primary{
+    background:var(--erp-accent);
+    border:none;
+    padding:14px 28px;
+    border-radius:12px;
+    font-weight:600;
+}
+
+/* CARD STYLE (comme dashboard) */
+.dashboard-card{
+    background:#fff;
+    border:none;
+    border-radius:18px;
+    box-shadow:0 2px 10px rgba(15,23,42,.05);
+    overflow:hidden;
+}
+
+.dashboard-card-header{
+    padding:20px 24px;
+    border-bottom:1px solid #f1f5f9;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.dashboard-card-title{
+    margin:0;
+    font-size:20px;
+    font-weight:700;
+    color:var(--erp-primary);
+}
+
+.badge-custom{
+    background:#eef2ff;
+    color:#4338ca;
+    padding:8px 12px;
+    border-radius:20px;
+    font-size:12px;
+}
+
+/* AI RESPONSE */
+.ai-response{
+    background:#f5f7ff;
+    border:1px solid #c7d2fe;
+    border-radius:14px;
+    padding:18px 22px;
+    margin-bottom:20px;
+    color:#312e81;
+}
+
+/* TABLE */
+.table{
+    margin-bottom:0;
+}
+
+.table thead th{
+    background:#f8fafc;
+    color:#64748b;
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:.8px;
+    border:none;
+    padding:16px;
+}
+
+.table tbody td{
+    padding:16px;
+}
+
+.table tbody tr:hover{
+    background:#fafbff;
+}
+
+/* EMPTY */
+.empty-state{
+    padding:60px;
+    text-align:center;
+}
+
+.empty-state i{
+    font-size:50px;
+    color:#cbd5e1;
+}
+
+.empty-state h5{
+    margin-top:15px;
+    color:#334155;
+}
+
+.empty-state p{
+    color:#64748b;
+}
+
+/* ERROR */
+.erp-error{
+    background:#fee2e2;
+    color:#b91c1c;
+    padding:14px 18px;
+    border-radius:12px;
+    margin-bottom:20px;
+}
+
+/* BADGE */
+.badge{
+    font-size:11px;
+    padding:4px 10px;
+    border-radius:12px;
+    background:#e0e7ff;
+    color:#4338ca;
+    font-weight:600;
+}
 </style>
 
 <div class="erp-wrapper">
 
-    <div class="erp-nav">
-        <a href="<?= $this->url('invoice') ?>">🏠 Dashboard</a>
-        <a href="<?= $this->url('invoice-upload') ?>">⬆️ Nouvelle facture</a>
-        <a href="<?= $this->url('invoice-history') ?>">📜 Historique</a>
-        <a href="<?= $this->url('invoice-search') ?>">🔍 Recherche</a>
+    <!-- HEADER -->
+    <div>
+        <h1 class="page-title">
+            <i class="bi bi-search"></i>
+            Recherche intelligente
+        </h1>
+        <div class="page-subtitle">
+            Recherche par IA sur factures (OCR + fuzzy matching)
+        </div>
     </div>
 
-    <h1 style="color:#1e293b;">🔍 Recherche intelligente</h1>
-    <p style="color:#64748b;">Cherche par numéro de facture, nom du fournisseur, client, etc. L'IA comprend aussi les fautes de frappe.</p>
+    <!-- NAV BAR (STYLE DASHBOARD) -->
+    <div class="nav-buttons">
 
+        <a href="<?= $this->url('invoice') ?>" class="btn btn-outline-primary">
+            <i class="bi bi-house"></i>
+            Dashboard
+        </a>
+
+        <a href="<?= $this->url('invoice-upload') ?>" class="btn btn-primary">
+            <i class="bi bi-upload"></i>
+            Nouvelle facture
+        </a>
+
+        <a href="<?= $this->url('invoice-history') ?>" class="btn btn-outline-secondary">
+            <i class="bi bi-clock-history"></i>
+            Historique
+        </a>
+
+        <a href="<?= $this->url('invoice-search') ?>" class="btn btn-outline-secondary">
+            <i class="bi bi-search"></i>
+            Recherche
+        </a>
+
+    </div>
+
+    <p class="text-muted mb-3">
+        Cherche par numéro, fournisseur, client ou texte approximatif.
+    </p>
+
+    <!-- SEARCH FORM -->
     <form method="get" action="<?= $this->url('invoice-search') ?>">
         <div class="search-box">
-            <input type="text" name="q" placeholder="Ex: Tech Store, INV-2026-001..." value="<?= $this->escapeHtml($query ?? '') ?>" autofocus>
-            <button type="submit" class="btn-primary">Rechercher</button>
+            <input type="text"
+                   name="q"
+                   placeholder="Ex: Tech Store, INV-2026-001..."
+                   value="<?= $this->escapeHtml($query ?? '') ?>"
+                   autofocus>
+            <button type="submit" class="btn btn-primary">
+                Rechercher
+            </button>
         </div>
     </form>
 
     <?php if (!empty($error)): ?>
-        <div class="erp-error">⚠️ <?= $this->escapeHtml($error) ?></div>
+        <div class="erp-error">
+            ⚠️ <?= $this->escapeHtml($error) ?>
+        </div>
     <?php endif; ?>
 
     <?php if (isset($result)): ?>
@@ -61,36 +257,94 @@ $this->headTitle('Recherche - ERP-AI');
             </div>
         <?php endif; ?>
 
-        <?php if (empty($result['results'])): ?>
-            <div class="erp-table erp-empty">
-                Aucun résultat pour « <?= $this->escapeHtml($query) ?> ».
+        <!-- RESULT CARD -->
+        <div class="dashboard-card">
+
+            <div class="dashboard-card-header">
+
+                <h3 class="dashboard-card-title">
+                    <i class="bi bi-list-ul"></i>
+                    Résultats de recherche
+                </h3>
+
+                <span class="badge-custom">
+                    <?= count($result['results'] ?? []) ?> résultat(s)
+                </span>
+
             </div>
-        <?php else: ?>
-            <table class="erp-table">
-                <thead>
-                    <tr>
-                        <th>N° Facture</th>
-                        <th>Fournisseur</th>
-                        <th>Client</th>
-                        <th>Montant</th>
-                        <th>Pertinence</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($result['results'] as $r): ?>
+
+            <?php if (empty($result['results'])): ?>
+
+                <div class="empty-state">
+
+                    <i class="bi bi-search"></i>
+
+                    <h5>Aucun résultat trouvé</h5>
+                    <p>Essayez un autre mot-clé</p>
+
+                </div>
+
+            <?php else: ?>
+
+                <div class="table-responsive">
+
+                    <table class="table table-hover align-middle">
+
+                        <thead>
                         <tr>
-                            <td><?= $this->escapeHtml($r['invoice_number'] ?? '—') ?></td>
-                            <td><?= $this->escapeHtml($r['vendor_name'] ?? '—') ?></td>
-                            <td><?= $this->escapeHtml($r['client_name'] ?? '—') ?></td>
-                            <td><?= $this->escapeHtml((string) ($r['total_amount'] ?? '—')) ?> <?= $this->escapeHtml($r['currency'] ?? '') ?></td>
-                            <td><span class="badge"><?= $this->escapeHtml((string) ($r['_score'] ?? '')) ?>%</span></td>
-                            <td><a href="<?= $this->url('invoice-view', ['id' => $r['id']]) ?>">Voir</a></td>
+                            <th>N° Facture</th>
+                            <th>Fournisseur</th>
+                            <th>Client</th>
+                            <th>Montant</th>
+                            <th>Pertinence</th>
+                            <th>Action</th>
                         </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        <?php endif; ?>
+                        </thead>
+
+                        <tbody>
+
+                        <?php foreach ($result['results'] as $r): ?>
+
+                            <tr>
+
+                                <td><?= $this->escapeHtml($r['invoice_number'] ?? '—') ?></td>
+
+                                <td><?= $this->escapeHtml($r['vendor_name'] ?? '—') ?></td>
+
+                                <td><?= $this->escapeHtml($r['client_name'] ?? '—') ?></td>
+
+                                <td>
+                                    <?= $this->escapeHtml((string)($r['total_amount'] ?? '—')) ?>
+                                    <?= $this->escapeHtml($r['currency'] ?? '') ?>
+                                </td>
+
+                                <td>
+                                    <span class="badge">
+                                        <?= $this->escapeHtml((string)($r['_score'] ?? '')) ?>%
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <a class="btn btn-sm btn-outline-primary"
+                                       href="<?= $this->url('invoice-view', ['id' => $r['id']]) ?>">
+                                        <i class="bi bi-eye"></i>
+                                        Voir
+                                    </a>
+                                </td>
+
+                            </tr>
+
+                        <?php endforeach; ?>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            <?php endif; ?>
+
+        </div>
 
     <?php endif; ?>
 

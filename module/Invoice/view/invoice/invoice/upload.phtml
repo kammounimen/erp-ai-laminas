@@ -1,109 +1,277 @@
 <?php
-/**
- * view/invoice/invoice/upload.phtml
- * ------------------------------------
- * Formulaire d'upload d'une facture (PDF/image).
- * Au submit, le contrôleur appelle l'API d'extraction puis redirige
- * vers la page de validation.
- */
 $this->headTitle('Nouvelle facture - ERP-AI');
 ?>
 
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
 <style>
-    .erp-wrapper { font-family: -apple-system, Segoe UI, Roboto, sans-serif; padding: 24px; max-width: 800px; margin: 0 auto; }
-    .erp-nav { display: flex; gap: 10px; margin-bottom: 24px; }
-    .erp-nav a { padding: 10px 16px; border-radius: 8px; text-decoration: none; background: #f1f5f9; color: #334155; font-weight: 500; font-size: 14px; }
-    .erp-nav a:hover { background: #e2e8f0; }
-    .upload-box {
-        background: #fff; border: 2px dashed #cbd5e1; border-radius: 16px;
-        padding: 50px 30px; text-align: center;
-    }
-    .upload-box.dragover { border-color: #3b56e4; background: #f5f7ff; }
-    .upload-icon { font-size: 48px; margin-bottom: 12px; }
-    .btn-primary {
-        background: #3b56e4; color: #fff; border: none; padding: 12px 28px;
-        border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 16px;
-    }
-    .btn-primary:disabled { background: #94a3b8; cursor: not-allowed; }
-    .file-name { margin-top: 14px; font-size: 14px; color: #475569; font-weight: 500; }
-    .erp-error { background: #fee2e2; color: #b91c1c; padding: 14px 18px; border-radius: 8px; margin-bottom: 20px; }
-    .loading-box { display: none; text-align: center; padding: 30px; }
-    .spinner {
-        width: 36px; height: 36px; border: 4px solid #e2e8f0; border-top-color: #3b56e4;
-        border-radius: 50%; margin: 0 auto 16px; animation: spin 0.8s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
+:root{
+    --erp-primary:#1e2a4a;
+    --erp-accent:#6366f1;
+    --erp-light:#f8fafc;
+    --erp-border:#e2e8f0;
+}
+
+/* BACKGROUND GLOBAL */
+.erp-wrapper{
+    padding:30px;
+    background:var(--erp-light);
+    min-height:100vh;
+}
+
+/* NAVBAR IDENTIQUE DASHBOARD */
+.nav-buttons{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:25px;
+}
+
+.nav-buttons .btn{
+    border-radius:10px;
+    padding:10px 18px;
+    font-weight:600;
+}
+
+/* PAGE CARD STYLE DASHBOARD */
+.page-card{
+    background:#fff;
+    border-radius:18px;
+    padding:35px;
+    box-shadow:0 2px 10px rgba(15,23,42,.06);
+}
+
+/* TITRES */
+.page-title{
+    color:var(--erp-primary);
+    font-size:30px;
+    font-weight:700;
+    margin-bottom:8px;
+}
+
+.page-subtitle{
+    color:#64748b;
+    margin-bottom:25px;
+}
+
+/* ERROR */
+.erp-error{
+    background:#fee2e2;
+    color:#991b1b;
+    border-radius:12px;
+    padding:14px;
+    margin-bottom:20px;
+}
+
+/* UPLOAD BOX */
+.upload-box{
+    border:2px dashed var(--erp-border);
+    border-radius:18px;
+    padding:60px 30px;
+    text-align:center;
+    cursor:pointer;
+    transition:.3s;
+}
+
+.upload-box:hover{
+    border-color:var(--erp-accent);
+    background:#f8fafc;
+}
+
+.upload-box.dragover{
+    border-color:var(--erp-accent);
+    background:#eef2ff;
+}
+
+.upload-icon{
+    font-size:60px;
+    color:var(--erp-accent);
+    margin-bottom:15px;
+}
+
+.upload-title{
+    font-size:18px;
+    font-weight:700;
+    color:var(--erp-primary);
+}
+
+.upload-subtitle{
+    color:#64748b;
+    font-size:14px;
+    margin-top:5px;
+}
+
+.file-name{
+    margin-top:15px;
+    font-weight:600;
+    color:#334155;
+}
+
+/* BUTTON LIKE DASHBOARD */
+.btn-upload{
+    margin-top:20px;
+    background:var(--erp-accent);
+    color:white;
+    border:none;
+    padding:12px 22px;
+    border-radius:10px;
+    font-weight:600;
+}
+
+.btn-upload:disabled{
+    background:#94a3b8;
+}
+
+/* LOADING */
+.loading-box{
+    display:none;
+    text-align:center;
+    padding:40px;
+}
+
+.spinner{
+    width:40px;
+    height:40px;
+    border:4px solid #e2e8f0;
+    border-top-color:var(--erp-accent);
+    border-radius:50%;
+    margin:0 auto 10px;
+    animation:spin .8s linear infinite;
+}
+
+@keyframes spin{
+    to{ transform:rotate(360deg); }
+}
 </style>
 
 <div class="erp-wrapper">
 
-    <div class="erp-nav">
-        <a href="<?= $this->url('invoice') ?>">🏠 Dashboard</a>
-        <a href="<?= $this->url('invoice-upload') ?>">⬆️ Nouvelle facture</a>
-        <a href="<?= $this->url('invoice-history') ?>">📜 Historique</a>
-        <a href="<?= $this->url('invoice-search') ?>">🔍 Recherche</a>
+    <!-- NAVBAR IDENTIQUE DASHBOARD -->
+    <div class="nav-buttons">
+
+        <a href="<?= $this->url('invoice') ?>" class="btn btn-outline-primary">
+            <i class="bi bi-house"></i> Dashboard
+        </a>
+
+        <a href="<?= $this->url('invoice-upload') ?>" class="btn btn-primary">
+            <i class="bi bi-upload"></i> Nouvelle facture
+        </a>
+
+        <a href="<?= $this->url('invoice-history') ?>" class="btn btn-outline-secondary">
+            <i class="bi bi-clock-history"></i> Historique
+        </a>
+
+        <a href="<?= $this->url('invoice-search') ?>" class="btn btn-outline-secondary">
+            <i class="bi bi-search"></i> Recherche
+        </a>
+
     </div>
 
-    <h1 style="color:#1e293b;">⬆️ Nouvelle facture</h1>
-    <p style="color:#64748b;">Upload un PDF ou une image de facture. L'IA va extraire automatiquement les données.</p>
+    <!-- CARD -->
+    <div class="page-card">
 
-    <?php if (!empty($error)): ?>
-        <div class="erp-error">⚠️ <?= $this->escapeHtml($error) ?></div>
-    <?php endif; ?>
+        <h1 class="page-title">
+            <i class="bi bi-upload"></i>
+            Nouvelle facture
+        </h1>
 
-    <form id="upload-form" method="post" enctype="multipart/form-data" action="<?= $this->url('invoice-upload') ?>">
-        <div class="upload-box" id="upload-box">
-            <div class="upload-icon">📄</div>
-            <p style="color:#475569; font-weight:600;">Glisse ta facture ici ou clique pour choisir un fichier</p>
-            <p style="color:#94a3b8; font-size:13px;">Formats acceptés : PDF, JPG, PNG, WEBP</p>
-            <input type="file" name="facture" id="facture-input" accept=".pdf,.jpg,.jpeg,.png,.webp" style="display:none;">
-            <div class="file-name" id="file-name"></div>
-            <button type="submit" class="btn-primary" id="submit-btn" disabled>🔍 Lancer le scan</button>
+        <div class="page-subtitle">
+            Importez un PDF ou une image — l’IA analyse automatiquement la facture.
         </div>
-    </form>
 
-    <div class="loading-box" id="loading-box">
-        <div class="spinner"></div>
-        <p style="color:#475569;">Extraction en cours, analyse par l'IA... (peut prendre 10-30s)</p>
+        <?php if (!empty($error)): ?>
+            <div class="erp-error">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <?= $this->escapeHtml($error) ?>
+            </div>
+        <?php endif; ?>
+
+        <form id="upload-form"
+              method="post"
+              enctype="multipart/form-data"
+              action="<?= $this->url('invoice-upload') ?>">
+
+            <div class="upload-box" id="upload-box">
+
+                <div class="upload-icon">
+                    <i class="bi bi-file-earmark-arrow-up"></i>
+                </div>
+
+                <div class="upload-title">
+                    Glissez votre facture ici
+                </div>
+
+                <div class="upload-subtitle">
+                    PDF, JPG, PNG, WEBP
+                </div>
+
+                <input type="file"
+                       name="facture"
+                       id="facture-input"
+                       accept=".pdf,.jpg,.jpeg,.png,.webp"
+                       style="display:none;">
+
+                <div class="file-name" id="file-name"></div>
+
+                <button type="submit"
+                        class="btn-upload"
+                        id="submit-btn"
+                        disabled>
+
+                    <i class="bi bi-cpu"></i>
+                    Lancer l'analyse
+                </button>
+
+            </div>
+        </form>
+
+        <div class="loading-box" id="loading-box">
+            <div class="spinner"></div>
+            <p>Analyse IA en cours...</p>
+        </div>
+
     </div>
-
 </div>
 
 <script>
-    const uploadBox = document.getElementById('upload-box');
-    const fileInput = document.getElementById('facture-input');
-    const fileNameEl = document.getElementById('file-name');
-    const submitBtn = document.getElementById('submit-btn');
-    const form = document.getElementById('upload-form');
-    const loadingBox = document.getElementById('loading-box');
+const uploadBox = document.getElementById('upload-box');
+const fileInput = document.getElementById('facture-input');
+const fileNameEl = document.getElementById('file-name');
+const submitBtn = document.getElementById('submit-btn');
+const form = document.getElementById('upload-form');
+const loadingBox = document.getElementById('loading-box');
 
-    uploadBox.addEventListener('click', (e) => {
-        if (e.target.tagName !== 'BUTTON') fileInput.click();
-    });
+uploadBox.addEventListener('click', () => fileInput.click());
 
-    fileInput.addEventListener('change', () => {
-        if (fileInput.files.length > 0) {
-            fileNameEl.textContent = '📎 ' + fileInput.files[0].name;
-            submitBtn.disabled = false;
-        }
-    });
+fileInput.addEventListener('change', () => {
+    if(fileInput.files.length){
+        fileNameEl.textContent = fileInput.files[0].name;
+        submitBtn.disabled = false;
+    }
+});
 
-    ['dragover', 'dragenter'].forEach(evt =>
-        uploadBox.addEventListener(evt, (e) => { e.preventDefault(); uploadBox.classList.add('dragover'); })
-    );
-    ['dragleave', 'drop'].forEach(evt =>
-        uploadBox.addEventListener(evt, (e) => { e.preventDefault(); uploadBox.classList.remove('dragover'); })
-    );
-    uploadBox.addEventListener('drop', (e) => {
-        if (e.dataTransfer.files.length > 0) {
-            fileInput.files = e.dataTransfer.files;
-            fileNameEl.textContent = '📎 ' + fileInput.files[0].name;
-            submitBtn.disabled = false;
-        }
-    });
+uploadBox.addEventListener('dragover', e => {
+    e.preventDefault();
+    uploadBox.classList.add('dragover');
+});
 
-    form.addEventListener('submit', () => {
-        uploadBox.style.display = 'none';
-        loadingBox.style.display = 'block';
-    });
+uploadBox.addEventListener('dragleave', () => {
+    uploadBox.classList.remove('dragover');
+});
+
+uploadBox.addEventListener('drop', e => {
+    e.preventDefault();
+    uploadBox.classList.remove('dragover');
+
+    if(e.dataTransfer.files.length){
+        fileInput.files = e.dataTransfer.files;
+        fileNameEl.textContent = fileInput.files[0].name;
+        submitBtn.disabled = false;
+    }
+});
+
+form.addEventListener('submit', () => {
+    form.style.display = 'none';
+    loadingBox.style.display = 'block';
+});
 </script>
