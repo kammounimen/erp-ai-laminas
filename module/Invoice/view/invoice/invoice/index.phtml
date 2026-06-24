@@ -1,0 +1,116 @@
+<?php
+/**
+ * view/invoice/invoice/index.phtml
+ * ----------------------------------
+ * Dashboard principal de l'ERP : statut de l'API, statistiques,
+ * dernières factures.
+ */
+$this->headTitle('Tableau de bord - ERP-AI');
+?>
+
+<style>
+    .erp-wrapper { font-family: -apple-system, Segoe UI, Roboto, sans-serif; padding: 24px; max-width: 1200px; margin: 0 auto; }
+    .erp-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .erp-header h1 { font-size: 28px; margin: 0; color: #1e293b; }
+    .erp-nav { display: flex; gap: 10px; margin-bottom: 24px; }
+    .erp-nav a {
+        padding: 10px 16px; border-radius: 8px; text-decoration: none;
+        background: #f1f5f9; color: #334155; font-weight: 500; font-size: 14px;
+    }
+    .erp-nav a:hover { background: #e2e8f0; }
+    .erp-status {
+        display: inline-flex; align-items: center; gap: 6px;
+        padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 600;
+    }
+    .status-online { background: #dcfce7; color: #15803d; }
+    .status-offline { background: #fee2e2; color: #b91c1c; }
+    .erp-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 28px; }
+    .erp-card {
+        background: #fff; border: 1px solid #e2e8f0; border-radius: 12px;
+        padding: 20px;
+    }
+    .erp-card .label { font-size: 13px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+    .erp-card .value { font-size: 32px; font-weight: 700; color: #1e293b; margin-top: 8px; }
+    .erp-table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; }
+    .erp-table th { background: #f8fafc; text-align: left; padding: 12px 16px; font-size: 13px; color: #64748b; }
+    .erp-table td { padding: 12px 16px; border-top: 1px solid #f1f5f9; font-size: 14px; }
+    .erp-empty { padding: 40px; text-align: center; color: #94a3b8; }
+</style>
+
+<div class="erp-wrapper">
+
+    <div class="erp-header">
+        <h1>📊 Tableau de bord</h1>
+        <?php if ($apiOnline): ?>
+            <span class="erp-status status-online">● API en ligne</span>
+        <?php else: ?>
+            <span class="erp-status status-offline">● API hors ligne</span>
+        <?php endif; ?>
+    </div>
+
+    <div class="erp-nav">
+        <a href="<?= $this->url('invoice') ?>">🏠 Dashboard</a>
+        <a href="<?= $this->url('invoice-upload') ?>">⬆️ Nouvelle facture</a>
+        <a href="<?= $this->url('invoice-history') ?>">📜 Historique</a>
+        <a href="<?= $this->url('invoice-search') ?>">🔍 Recherche</a>
+    </div>
+
+    <?php if (!$apiOnline): ?>
+        <div style="background:#fee2e2; color:#b91c1c; padding:16px; border-radius:8px; margin-bottom:24px;">
+            ⚠️ L'API Python (agents d'extraction/recherche) n'est pas accessible.
+            Vérifie qu'elle tourne bien sur <code>http://127.0.0.1:8001</code>
+            (commande : <code>uvicorn api:app --reload --port 8001</code>).
+        </div>
+    <?php endif; ?>
+
+    <div class="erp-cards">
+        <div class="erp-card">
+            <div class="label">Total Factures</div>
+            <div class="value"><?= $this->escapeHtml((string) $totalFactures) ?></div>
+        </div>
+        <div class="erp-card">
+            <div class="label">Statut API</div>
+            <div class="value"><?= $apiOnline ? '✅' : '❌' ?></div>
+        </div>
+        <div class="erp-card">
+            <div class="label">Agents IA</div>
+            <div class="value">2</div>
+        </div>
+    </div>
+
+    <h3 style="color:#1e293b;">Dernières factures</h3>
+
+    <?php if (empty($dernieresFactures)): ?>
+        <div class="erp-table erp-empty">
+            Aucune facture pour le moment.
+            <br><br>
+            <a href="<?= $this->url('invoice-upload') ?>">➕ Ajouter ta première facture</a>
+        </div>
+    <?php else: ?>
+        <table class="erp-table">
+            <thead>
+                <tr>
+                    <th>N° Facture</th>
+                    <th>Fournisseur</th>
+                    <th>Client</th>
+                    <th>Montant</th>
+                    <th>Date</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($dernieresFactures as $facture): ?>
+                    <tr>
+                        <td><?= $this->escapeHtml($facture['invoice_number'] ?? '—') ?></td>
+                        <td><?= $this->escapeHtml($facture['vendor_name'] ?? '—') ?></td>
+                        <td><?= $this->escapeHtml($facture['client_name'] ?? '—') ?></td>
+                        <td><?= $this->escapeHtml((string) ($facture['total_amount'] ?? '—')) ?> <?= $this->escapeHtml($facture['currency'] ?? '') ?></td>
+                        <td><?= $this->escapeHtml($facture['invoice_date'] ?? '—') ?></td>
+                        <td><a href="<?= $this->url('invoice-view', ['id' => $facture['id']]) ?>">Voir</a></td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    <?php endif; ?>
+
+</div>

@@ -1,0 +1,97 @@
+<?php
+/**
+ * view/invoice/invoice/search.phtml
+ * --------------------------------------
+ * Formulaire de recherche intelligente (agent IA) + affichage des résultats.
+ */
+$this->headTitle('Recherche - ERP-AI');
+?>
+
+<style>
+    .erp-wrapper { font-family: -apple-system, Segoe UI, Roboto, sans-serif; padding: 24px; max-width: 1000px; margin: 0 auto; }
+    .erp-nav { display: flex; gap: 10px; margin-bottom: 24px; }
+    .erp-nav a { padding: 10px 16px; border-radius: 8px; text-decoration: none; background: #f1f5f9; color: #334155; font-weight: 500; font-size: 14px; }
+    .erp-nav a:hover { background: #e2e8f0; }
+    .search-box { display: flex; gap: 10px; margin-bottom: 24px; }
+    .search-box input {
+        flex: 1; padding: 14px 18px; border: 1px solid #d1d5db; border-radius: 10px; font-size: 15px;
+    }
+    .search-box input:focus { outline: none; border-color: #3b56e4; }
+    .btn-primary { background: #3b56e4; color: #fff; border: none; padding: 14px 28px; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; }
+    .ai-response {
+        background: #f5f7ff; border: 1px solid #c7d2fe; border-radius: 12px;
+        padding: 18px 22px; margin-bottom: 20px; color: #312e81; font-size: 15px;
+    }
+    .erp-table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; }
+    .erp-table th { background: #f8fafc; text-align: left; padding: 12px 16px; font-size: 13px; color: #64748b; }
+    .erp-table td { padding: 12px 16px; border-top: 1px solid #f1f5f9; font-size: 14px; }
+    .erp-empty { padding: 40px; text-align: center; color: #94a3b8; }
+    .erp-error { background: #fee2e2; color: #b91c1c; padding: 14px 18px; border-radius: 8px; margin-bottom: 20px; }
+    .badge { font-size: 11px; padding: 3px 8px; border-radius: 10px; background: #e0e7ff; color: #4338ca; font-weight: 600; }
+</style>
+
+<div class="erp-wrapper">
+
+    <div class="erp-nav">
+        <a href="<?= $this->url('invoice') ?>">🏠 Dashboard</a>
+        <a href="<?= $this->url('invoice-upload') ?>">⬆️ Nouvelle facture</a>
+        <a href="<?= $this->url('invoice-history') ?>">📜 Historique</a>
+        <a href="<?= $this->url('invoice-search') ?>">🔍 Recherche</a>
+    </div>
+
+    <h1 style="color:#1e293b;">🔍 Recherche intelligente</h1>
+    <p style="color:#64748b;">Cherche par numéro de facture, nom du fournisseur, client, etc. L'IA comprend aussi les fautes de frappe.</p>
+
+    <form method="get" action="<?= $this->url('invoice-search') ?>">
+        <div class="search-box">
+            <input type="text" name="q" placeholder="Ex: Tech Store, INV-2026-001..." value="<?= $this->escapeHtml($query ?? '') ?>" autofocus>
+            <button type="submit" class="btn-primary">Rechercher</button>
+        </div>
+    </form>
+
+    <?php if (!empty($error)): ?>
+        <div class="erp-error">⚠️ <?= $this->escapeHtml($error) ?></div>
+    <?php endif; ?>
+
+    <?php if (isset($result)): ?>
+
+        <?php if (!empty($result['natural_response'])): ?>
+            <div class="ai-response">
+                🤖 <?= $this->escapeHtml($result['natural_response']) ?>
+            </div>
+        <?php endif; ?>
+
+        <?php if (empty($result['results'])): ?>
+            <div class="erp-table erp-empty">
+                Aucun résultat pour « <?= $this->escapeHtml($query) ?> ».
+            </div>
+        <?php else: ?>
+            <table class="erp-table">
+                <thead>
+                    <tr>
+                        <th>N° Facture</th>
+                        <th>Fournisseur</th>
+                        <th>Client</th>
+                        <th>Montant</th>
+                        <th>Pertinence</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($result['results'] as $r): ?>
+                        <tr>
+                            <td><?= $this->escapeHtml($r['invoice_number'] ?? '—') ?></td>
+                            <td><?= $this->escapeHtml($r['vendor_name'] ?? '—') ?></td>
+                            <td><?= $this->escapeHtml($r['client_name'] ?? '—') ?></td>
+                            <td><?= $this->escapeHtml((string) ($r['total_amount'] ?? '—')) ?> <?= $this->escapeHtml($r['currency'] ?? '') ?></td>
+                            <td><span class="badge"><?= $this->escapeHtml((string) ($r['_score'] ?? '')) ?>%</span></td>
+                            <td><a href="<?= $this->url('invoice-view', ['id' => $r['id']]) ?>">Voir</a></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        <?php endif; ?>
+
+    <?php endif; ?>
+
+</div>

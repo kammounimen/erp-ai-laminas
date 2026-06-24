@@ -1,0 +1,111 @@
+<?php
+/**
+ * view/invoice/invoice/view.phtml
+ * -----------------------------------
+ * Affiche le détail complet d'une facture sauvegardée, avec ses lignes
+ * d'articles.
+ */
+$this->headTitle('Détail facture - ERP-AI');
+
+function vv($val) {
+    return $val === null || $val === '' ? '—' : htmlspecialchars((string) $val);
+}
+?>
+
+<style>
+    .erp-wrapper { font-family: -apple-system, Segoe UI, Roboto, sans-serif; padding: 24px; max-width: 900px; margin: 0 auto; }
+    .erp-nav { display: flex; gap: 10px; margin-bottom: 24px; }
+    .erp-nav a { padding: 10px 16px; border-radius: 8px; text-decoration: none; background: #f1f5f9; color: #334155; font-weight: 500; font-size: 14px; }
+    .erp-nav a:hover { background: #e2e8f0; }
+    .erp-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+    .erp-card h3 { margin-top: 0; color: #1e293b; font-size: 16px; }
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .info-item .label { font-size: 12px; color: #94a3b8; text-transform: uppercase; }
+    .info-item .value { font-size: 15px; color: #1e293b; font-weight: 500; margin-top: 2px; }
+    .items-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    .items-table th { text-align: left; background: #f8fafc; font-size: 12px; color: #64748b; padding: 8px 10px; }
+    .items-table td { padding: 8px 10px; border-top: 1px solid #f1f5f9; font-size: 14px; }
+    .total-banner {
+        background: #1e293b; color: #fff; padding: 18px 24px; border-radius: 12px;
+        display: flex; justify-content: space-between; align-items: center; font-size: 18px; font-weight: 700;
+    }
+    .erp-error { background: #fee2e2; color: #b91c1c; padding: 14px 18px; border-radius: 8px; margin-bottom: 20px; }
+</style>
+
+<div class="erp-wrapper">
+
+    <div class="erp-nav">
+        <a href="<?= $this->url('invoice') ?>">🏠 Dashboard</a>
+        <a href="<?= $this->url('invoice-upload') ?>">⬆️ Nouvelle facture</a>
+        <a href="<?= $this->url('invoice-history') ?>">📜 Historique</a>
+        <a href="<?= $this->url('invoice-search') ?>">🔍 Recherche</a>
+    </div>
+
+    <?php if (!empty($error)): ?>
+        <div class="erp-error">⚠️ <?= $this->escapeHtml($error) ?></div>
+    <?php else: ?>
+
+        <h1 style="color:#1e293b;">🧾 Facture <?= vv($invoice['invoice_number'] ?? null) ?></h1>
+
+        <div class="erp-card">
+            <h3>📋 Informations générales</h3>
+            <div class="info-grid">
+                <div class="info-item"><div class="label">Date facture</div><div class="value"><?= vv($invoice['invoice_date'] ?? null) ?></div></div>
+                <div class="info-item"><div class="label">Date d'échéance</div><div class="value"><?= vv($invoice['due_date'] ?? null) ?></div></div>
+                <div class="info-item"><div class="label">Mode de paiement</div><div class="value"><?= vv($invoice['payment_method'] ?? null) ?></div></div>
+                <div class="info-item"><div class="label">Devise</div><div class="value"><?= vv($invoice['currency'] ?? null) ?></div></div>
+            </div>
+        </div>
+
+        <div class="erp-card">
+            <h3>🏢 Fournisseur</h3>
+            <div class="info-grid">
+                <div class="info-item"><div class="label">Nom</div><div class="value"><?= vv($invoice['vendor_name'] ?? null) ?></div></div>
+                <div class="info-item"><div class="label">Téléphone</div><div class="value"><?= vv($invoice['vendor_phone'] ?? null) ?></div></div>
+                <div class="info-item"><div class="label">Adresse</div><div class="value"><?= vv($invoice['vendor_address'] ?? null) ?></div></div>
+                <div class="info-item"><div class="label">Email</div><div class="value"><?= vv($invoice['vendor_email'] ?? null) ?></div></div>
+            </div>
+        </div>
+
+        <div class="erp-card">
+            <h3>👤 Client</h3>
+            <div class="info-grid">
+                <div class="info-item"><div class="label">Nom</div><div class="value"><?= vv($invoice['client_name'] ?? null) ?></div></div>
+                <div class="info-item"><div class="label">Adresse</div><div class="value"><?= vv($invoice['client_address'] ?? null) ?></div></div>
+            </div>
+        </div>
+
+        <div class="erp-card">
+            <h3>🧾 Articles</h3>
+            <table class="items-table">
+                <thead>
+                    <tr><th>Description</th><th>Quantité</th><th>Prix unitaire</th><th>Total</th></tr>
+                </thead>
+                <tbody>
+                    <?php foreach (($invoice['items'] ?? []) as $item): ?>
+                        <tr>
+                            <td><?= vv($item['description'] ?? null) ?></td>
+                            <td><?= vv($item['quantity'] ?? null) ?></td>
+                            <td><?= vv($item['unit_price'] ?? null) ?></td>
+                            <td><?= vv($item['total_price'] ?? null) ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+
+        <?php if (!empty($invoice['notes'])): ?>
+            <div class="erp-card">
+                <h3>📝 Notes</h3>
+                <p style="color:#475569;"><?= vv($invoice['notes']) ?></p>
+            </div>
+        <?php endif; ?>
+
+        <div class="total-banner">
+            <span>TOTAL</span>
+            <span><?= vv($invoice['total_amount'] ?? null) ?> <?= vv($invoice['currency'] ?? null) ?></span>
+        </div>
+
+    <?php endif; ?>
+
+</div>
