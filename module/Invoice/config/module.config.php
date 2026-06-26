@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Invoice;
 
 use Invoice\Controller\InvoiceController;
+use Invoice\Controller\AuthController;
+use Invoice\Controller\UserController;
 use Invoice\Service\ApiClient;
-use Invoice\Service\JwtVerifier;
-use Invoice\Service\SsoAuthListener;
 use Laminas\Router\Http\Literal;
 use Laminas\Router\Http\Segment;
 use Laminas\ServiceManager\Factory\InvokableFactory;
@@ -95,6 +95,80 @@ return [
                     ],
                 ],
             ],
+
+            // http://projet_laminas.test/login → page de connexion du client
+            'login' => [
+                'type'    => Literal::class,
+                'options' => [
+                    'route'    => '/login',
+                    'defaults' => [
+                        'controller' => AuthController::class,
+                        'action'     => 'login',
+                    ],
+                ],
+            ],
+
+            // http://projet_laminas.test/logout
+            'logout' => [
+                'type'    => Literal::class,
+                'options' => [
+                    'route'    => '/logout',
+                    'defaults' => [
+                        'controller' => AuthController::class,
+                        'action'     => 'logout',
+                    ],
+                ],
+            ],
+
+            // http://projet_laminas.test/users → liste (admin uniquement)
+            'users' => [
+                'type'    => Literal::class,
+                'options' => [
+                    'route'    => '/users',
+                    'defaults' => [
+                        'controller' => UserController::class,
+                        'action'     => 'index',
+                    ],
+                ],
+            ],
+
+            // http://projet_laminas.test/users/create
+            'users-create' => [
+                'type'    => Literal::class,
+                'options' => [
+                    'route'    => '/users/create',
+                    'defaults' => [
+                        'controller' => UserController::class,
+                        'action'     => 'create',
+                    ],
+                ],
+            ],
+
+            // http://projet_laminas.test/users/edit/3
+            'users-edit' => [
+                'type'    => Segment::class,
+                'options' => [
+                    'route'    => '/users/edit/:id',
+                    'constraints' => ['id' => '[0-9]+'],
+                    'defaults' => [
+                        'controller' => UserController::class,
+                        'action'     => 'edit',
+                    ],
+                ],
+            ],
+
+            // http://projet_laminas.test/users/delete/3
+            'users-delete' => [
+                'type'    => Segment::class,
+                'options' => [
+                    'route'    => '/users/delete/:id',
+                    'constraints' => ['id' => '[0-9]+'],
+                    'defaults' => [
+                        'controller' => UserController::class,
+                        'action'     => 'delete',
+                    ],
+                ],
+            ],
         ],
     ],
 
@@ -105,6 +179,8 @@ return [
     'controllers' => [
         'factories' => [
             InvoiceController::class => \Invoice\Controller\InvoiceControllerFactory::class,
+            AuthController::class    => \Invoice\Controller\AuthControllerFactory::class,
+            UserController::class    => \Invoice\Controller\UserControllerFactory::class,
         ],
     ],
 
@@ -113,9 +189,7 @@ return [
     // -------------------------------------------------------------------
     'service_manager' => [
         'factories' => [
-            ApiClient::class       => \Invoice\Service\ApiClientFactory::class,
-            JwtVerifier::class     => \Invoice\Service\JwtVerifierFactory::class,
-            SsoAuthListener::class => \Invoice\Service\SsoAuthListenerFactory::class,
+            ApiClient::class => \Invoice\Service\ApiClientFactory::class,
         ],
     ],
 

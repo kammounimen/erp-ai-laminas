@@ -216,17 +216,24 @@ $this->headTitle('Tableau de bord - ERP-AI');
             </div>
         </div>
 
-        <?php if ($apiOnline): ?>
-            <span class="badge bg-success status-badge">
-                <i class="bi bi-check-circle-fill"></i>
-                API En ligne
-            </span>
-        <?php else: ?>
-            <span class="badge bg-danger status-badge">
-                <i class="bi bi-x-circle-fill"></i>
-                API Hors ligne
-            </span>
-        <?php endif; ?>
+        <div class="d-flex align-items-center gap-2">
+            <?php if ($apiOnline): ?>
+                <span class="badge bg-success status-badge">
+                    <i class="bi bi-check-circle-fill"></i>
+                    API En ligne
+                </span>
+            <?php else: ?>
+                <span class="badge bg-danger status-badge">
+                    <i class="bi bi-x-circle-fill"></i>
+                    API Hors ligne
+                </span>
+            <?php endif; ?>
+
+            <a href="<?= $this->url('logout') ?>" class="btn btn-outline-danger status-badge">
+                <i class="bi bi-box-arrow-right"></i>
+                Déconnexion
+            </a>
+        </div>
 
     </div>
 
@@ -255,6 +262,14 @@ $this->headTitle('Tableau de bord - ERP-AI');
             <i class="bi bi-search"></i>
             Recherche
         </a>
+
+        <?php if (($currentUser['role'] ?? '') === 'admin'): ?>
+            <a href="<?= $this->url('users') ?>"
+               class="btn btn-outline-secondary">
+                <i class="bi bi-people"></i>
+                Utilisateurs
+            </a>
+        <?php endif; ?>
 
     </div>
 

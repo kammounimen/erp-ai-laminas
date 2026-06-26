@@ -52,7 +52,7 @@ class ApiClient
      * @return array Données extraites (invoice_number, vendor_name, items, etc.)
      * @throws \RuntimeException si l'extraction échoue
      */
-    public function extractInvoice(string $filePath, string $fileName): array
+    public function extractInvoice(string $filePath, string $fileName, string $licenceKey): array
     {
         try {
             $response = $this->httpClient->post('/api/extract', [
@@ -61,6 +61,10 @@ class ApiClient
                         'name'     => 'file',
                         'contents' => fopen($filePath, 'rb'),
                         'filename' => $fileName,
+                    ],
+                    [
+                        'name'     => 'licence_key',
+                        'contents' => $licenceKey,
                     ],
                 ],
             ]);
@@ -147,11 +151,11 @@ class ApiClient
      *
      * @return array{intent: string, strategy: string, count: int, results: array[], natural_response: string}
      */
-    public function search(string $query): array
+    public function search(string $query, string $licenceKey): array
     {
         try {
             $response = $this->httpClient->post('/api/search', [
-                'json' => ['query' => $query],
+                'json' => ['query' => $query, 'licence_key' => $licenceKey],
             ]);
 
             $body = json_decode((string) $response->getBody(), true);

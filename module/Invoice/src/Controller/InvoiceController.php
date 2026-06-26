@@ -6,8 +6,10 @@ namespace Invoice\Controller;
 
 use Invoice\Service\ApiClient;
 use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\Mvc\MvcEvent;
 use Laminas\View\Model\ViewModel;
 use Laminas\View\Model\JsonModel;
+use Laminas\Session\Container as SessionContainer;
 
 /**
  * InvoiceController
@@ -15,14 +17,46 @@ use Laminas\View\Model\JsonModel;
  * Gère tout le flux ERP : Dashboard, Upload, Validation, Historique,
  * Détail d'une facture, et Recherche intelligente.
  *
+ * Authentification LOCALE (pas de Django) : vérifiée via onDispatch()
+ * ci-dessous, qui bloque l'accès si aucune session 'erp_user' active.
+ *
  * Toute la logique métier (extraction IA, sauvegarde, recherche) est
  * déléguée à l'API Python via ApiClient — ce contrôleur ne fait
  * qu'orchestrer l'affichage et les formulaires.
  */
 class InvoiceController extends AbstractActionController
 {
+    private ?array $currentUser = null;
+
     public function __construct(private ApiClient $apiClient)
     {
+    }
+
+    /**
+     * Vérifie l'authentification AVANT chaque action de ce contrôleur.
+     * Si non connecté → redirige vers /login.
+     */
+    public function onDispatch(MvcEvent $event)
+    {
+        $session = new SessionContainer('erp_user');
+
+        if (empty($session->user_id)) {
+            return $this->redirect()->toRoute('login');
+        }
+
+        $this->currentUser = [
+            'user_id'     => $session->user_id,
+            'username'    => $session->username,
+            'fullname'    => $session->fullname,
+            'licence_key' => $session->licence_key,
+            'role'        => $session->role ?? 'employee',
+        ];
+
+        // Injecte automatiquement currentUser dans toutes les vues de ce
+        // contrôleur, sans avoir à le répéter dans chaque ViewModel.
+        $event->getViewModel()->setVariable('currentUser', $this->currentUser);
+
+        return parent::onDispatch($event);
     }
 
     // -----------------------------------------------------------------
@@ -46,6 +80,7 @@ class InvoiceController extends AbstractActionController
             'apiOnline'      => $apiOnline,
             'totalFactures'  => $stats['count'],
             'dernieresFactures' => $stats['results'],
+            'currentUser'    => $this->currentUser,
         ]);
     }
 
@@ -74,7 +109,8 @@ class InvoiceController extends AbstractActionController
         try {
             $extracted = $this->apiClient->extractInvoice(
                 $uploadedFile['tmp_name'],
-                $uploadedFile['name']
+                $uploadedFile['name'],
+                $this->currentUser['licence_key']
             );
         } catch (\RuntimeException $e) {
             return new ViewModel([
@@ -228,7 +264,7 @@ class InvoiceController extends AbstractActionController
         }
 
         try {
-            $result = $this->apiClient->search($query);
+            $result = $this->apiClient->search($query, $this->currentUser['licence_key']);
         } catch (\RuntimeException $e) {
             return new ViewModel([
                 'query' => $query,
