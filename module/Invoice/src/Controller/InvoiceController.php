@@ -23,6 +23,13 @@ use Laminas\Session\Container as SessionContainer;
  * Toute la logique métier (extraction IA, sauvegarde, recherche) est
  * déléguée à l'API Python via ApiClient — ce contrôleur ne fait
  * qu'orchestrer l'affichage et les formulaires.
+ *
+ * VISIBILITÉ DES FACTURES :
+ * - role === 'admin'    → voit et consulte TOUTES les factures
+ * - role === 'employee' → ne voit et ne peut consulter QUE ses propres
+ *                          factures (celles créées avec son user_id)
+ * Le filtrage réel se fait côté API Python / base de données ; ce
+ * contrôleur se contente de transmettre user_id + role à chaque appel.
  */
 class InvoiceController extends AbstractActionController
 {
@@ -69,7 +76,12 @@ class InvoiceController extends AbstractActionController
         $stats = ['count' => 0, 'results' => []];
         if ($apiOnline) {
             try {
-                $stats = $this->apiClient->listInvoices(limit: 5, offset: 0);
+                $stats = $this->apiClient->listInvoices(
+                    limit: 5,
+                    offset: 0,
+                    userId: (int) $this->currentUser['user_id'],
+                    role: $this->currentUser['role'],
+                );
             } catch (\RuntimeException $e) {
                 // L'API répond au health check mais une erreur survient sur la lecture
                 $apiOnline = false;
@@ -188,7 +200,10 @@ class InvoiceController extends AbstractActionController
             ];
 
             try {
-                $invoiceId = $this->apiClient->createInvoice($invoiceData);
+                $invoiceId = $this->apiClient->createInvoice(
+                    $invoiceData,
+                    createdBy: (int) $this->currentUser['user_id'],
+                );
                 unset($container->data, $container->rawText, $container->sourceFile);
 
                 return $this->redirect()->toRoute('invoice-view', ['id' => $invoiceId]);
@@ -214,6 +229,8 @@ class InvoiceController extends AbstractActionController
 
     // -----------------------------------------------------------------
     // History : liste paginée des factures
+    // - admin    → toutes les factures
+    // - employee → uniquement les siennes
     // -----------------------------------------------------------------
     public function historyAction(): ViewModel
     {
@@ -222,7 +239,12 @@ class InvoiceController extends AbstractActionController
         $offset = ($page - 1) * $limit;
 
         try {
-            $result = $this->apiClient->listInvoices($limit, $offset);
+            $result = $this->apiClient->listInvoices(
+                limit: $limit,
+                offset: $offset,
+                userId: (int) $this->currentUser['user_id'],
+                role: $this->currentUser['role'],
+            );
         } catch (\RuntimeException $e) {
             return new ViewModel([
                 'error'       => $e->getMessage(),
@@ -243,13 +265,19 @@ class InvoiceController extends AbstractActionController
 
     // -----------------------------------------------------------------
     // View : détail d'une facture
+    // - admin    → peut consulter n'importe quelle facture
+    // - employee → uniquement les siennes (sinon "introuvable")
     // -----------------------------------------------------------------
     public function viewAction(): ViewModel
     {
         $id = (int) $this->params()->fromRoute('id');
 
         try {
-            $invoice = $this->apiClient->getInvoice($id);
+            $invoice = $this->apiClient->getInvoice(
+                $id,
+                userId: (int) $this->currentUser['user_id'],
+                role: $this->currentUser['role'],
+            );
         } catch (\RuntimeException $e) {
             return new ViewModel(['error'=>$e->getMessage(),'currentUser'=>$this->currentUser]);
         }
@@ -275,7 +303,12 @@ class InvoiceController extends AbstractActionController
         }
 
         try {
-            $result = $this->apiClient->search($query, $this->currentUser['licence_key']);
+            $result = $this->apiClient->search(
+                $query,
+                $this->currentUser['licence_key'],
+                userId: (int) $this->currentUser['user_id'],
+                role: $this->currentUser['role'],
+            );
         } catch (\RuntimeException $e) {
             return new ViewModel([
                 'query'       => $query,

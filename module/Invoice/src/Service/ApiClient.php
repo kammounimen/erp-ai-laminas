@@ -82,12 +82,15 @@ class ApiClient
      * Sauvegarde une facture validée par l'utilisateur en base de données.
      *
      * @param array $invoiceData Données du formulaire (déjà validées/corrigées)
+     * @param int|null $createdBy ID de l'utilisateur qui crée la facture (currentUser['user_id'])
      * @return int L'ID de la facture créée
      * @throws \RuntimeException si la sauvegarde échoue
      */
-    public function createInvoice(array $invoiceData): int
+    public function createInvoice(array $invoiceData, ?int $createdBy = null): int
     {
         try {
+            $invoiceData['created_by'] = $createdBy;
+
             $response = $this->httpClient->post('/api/invoices', [
                 'json' => $invoiceData,
             ]);
@@ -104,13 +107,20 @@ class ApiClient
     /**
      * Liste paginée des factures (pour Dashboard et Historique).
      *
+     * @param int|null $userId ID de l'utilisateur courant (currentUser['user_id'])
+     * @param string|null $role Rôle de l'utilisateur courant ('admin' ou 'employee')
      * @return array{count: int, results: array[]}
      */
-    public function listInvoices(int $limit = 50, int $offset = 0): array
+    public function listInvoices(int $limit = 50, int $offset = 0, ?int $userId = null, ?string $role = null): array
     {
         try {
             $response = $this->httpClient->get('/api/invoices', [
-                'query' => ['limit' => $limit, 'offset' => $offset],
+                'query' => [
+                    'limit'   => $limit,
+                    'offset'  => $offset,
+                    'user_id' => $userId,
+                    'role'    => $role,
+                ],
             ]);
 
             $body = json_decode((string) $response->getBody(), true);
@@ -128,12 +138,19 @@ class ApiClient
     /**
      * Détail complet d'une facture (avec ses lignes d'articles).
      *
-     * @return array|null null si la facture n'existe pas
+     * @param int|null $userId ID de l'utilisateur courant (currentUser['user_id'])
+     * @param string|null $role Rôle de l'utilisateur courant ('admin' ou 'employee')
+     * @return array|null null si la facture n'existe pas OU n'appartient pas à cet utilisateur
      */
-    public function getInvoice(int $invoiceId): ?array
+    public function getInvoice(int $invoiceId, ?int $userId = null, ?string $role = null): ?array
     {
         try {
-            $response = $this->httpClient->get("/api/invoices/{$invoiceId}");
+            $response = $this->httpClient->get("/api/invoices/{$invoiceId}", [
+                'query' => [
+                    'user_id' => $userId,
+                    'role'    => $role,
+                ],
+            ]);
             $body = json_decode((string) $response->getBody(), true);
             return $body['invoice'] ?? null;
 
@@ -151,11 +168,23 @@ class ApiClient
      *
      * @return array{intent: string, strategy: string, count: int, results: array[], natural_response: string}
      */
-    public function search(string $query, string $licenceKey): array
+    /**
+     * Lance une recherche intelligente sur les factures.
+     *
+     * @param int|null $userId ID de l'utilisateur courant (currentUser['user_id'])
+     * @param string|null $role Rôle de l'utilisateur courant ('admin' ou 'employee')
+     * @return array{intent: string, strategy: string, count: int, results: array[], natural_response: string}
+     */
+    public function search(string $query, string $licenceKey, ?int $userId = null, ?string $role = null): array
     {
         try {
             $response = $this->httpClient->post('/api/search', [
-                'json' => ['query' => $query, 'licence_key' => $licenceKey],
+                'json' => [
+                    'query'       => $query,
+                    'licence_key' => $licenceKey,
+                    'user_id'     => $userId,
+                    'role'        => $role,
+                ],
             ]);
 
             $body = json_decode((string) $response->getBody(), true);
