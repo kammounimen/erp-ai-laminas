@@ -24,6 +24,23 @@ $this->headTitle('Recherche - ERP-AI');
     min-height:100vh;
 }
 
+/* HEADER (IDENTIQUE DASHBOARD) */
+.page-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:15px;
+    margin-bottom:25px;
+}
+
+.status-badge{
+    padding:10px 18px;
+    border-radius:30px;
+    font-weight:600;
+    font-size:14px;
+}
+
 /* NAV (IDENTIQUE DASHBOARD) */
 .nav-buttons{
     display:flex;
@@ -36,6 +53,7 @@ $this->headTitle('Recherche - ERP-AI');
     border-radius:10px;
     padding:10px 18px;
     font-weight:600;
+    text-decoration:none;
 }
 
 /* TITLE */
@@ -49,7 +67,6 @@ $this->headTitle('Recherche - ERP-AI');
 .page-subtitle{
     color:#64748b;
     font-size:14px;
-    margin-bottom:20px;
 }
 
 /* SEARCH BOX MODERNE */
@@ -74,12 +91,18 @@ $this->headTitle('Recherche - ERP-AI');
     box-shadow:0 0 0 3px rgba(99,102,241,0.1);
 }
 
-.btn-primary{
+.btn-search-submit{
     background:var(--erp-accent);
     border:none;
     padding:14px 28px;
     border-radius:12px;
     font-weight:600;
+    color:#fff;
+}
+
+.btn-search-submit:hover{
+    background:#4f46e5;
+    color:#fff;
 }
 
 /* CARD STYLE (comme dashboard) */
@@ -176,8 +199,8 @@ $this->headTitle('Recherche - ERP-AI');
     margin-bottom:20px;
 }
 
-/* BADGE */
-.badge{
+/* BADGE SCORE (tableau résultats uniquement) */
+.score-badge{
     font-size:11px;
     padding:4px 10px;
     border-radius:12px;
@@ -189,26 +212,49 @@ $this->headTitle('Recherche - ERP-AI');
 
 <div class="erp-wrapper">
 
-    <!-- HEADER -->
-    <div>
-        <h1 class="page-title">
-            <i class="bi bi-search"></i>
-            Recherche intelligente
-        </h1>
-        <div class="page-subtitle">
-            Recherche par IA sur factures (OCR + fuzzy matching)
+    <!-- HEADER (IDENTIQUE DASHBOARD) -->
+    <div class="page-header">
+
+        <div>
+            <h1 class="page-title">
+                <i class="bi bi-search"></i>
+                Recherche intelligente
+            </h1>
+            <div class="page-subtitle">
+                Recherche par IA sur factures (OCR + fuzzy matching)
+            </div>
         </div>
+
+        <div class="d-flex align-items-center gap-2">
+            <?php if ($apiOnline ?? true): ?>
+                <span class="badge bg-success status-badge">
+                    <i class="bi bi-check-circle-fill"></i>
+                    API En ligne
+                </span>
+            <?php else: ?>
+                <span class="badge bg-danger status-badge">
+                    <i class="bi bi-x-circle-fill"></i>
+                    API Hors ligne
+                </span>
+            <?php endif; ?>
+
+            <a href="<?= $this->url('logout') ?>" class="btn btn-outline-danger status-badge">
+                <i class="bi bi-box-arrow-right"></i>
+                Déconnexion
+            </a>
+        </div>
+
     </div>
 
-    <!-- NAV BAR (STYLE DASHBOARD) -->
+    <!-- NAV BAR (IDENTIQUE DASHBOARD) -->
     <div class="nav-buttons">
 
-        <a href="<?= $this->url('invoice') ?>" class="btn btn-outline-primary">
+        <a href="<?= $this->url('invoice') ?>" class="btn btn-outline-secondary">
             <i class="bi bi-house"></i>
             Dashboard
         </a>
 
-        <a href="<?= $this->url('invoice-upload') ?>" class="btn btn-primary">
+        <a href="<?= $this->url('invoice-upload') ?>" class="btn btn-outline-secondary">
             <i class="bi bi-upload"></i>
             Nouvelle facture
         </a>
@@ -218,10 +264,17 @@ $this->headTitle('Recherche - ERP-AI');
             Historique
         </a>
 
-        <a href="<?= $this->url('invoice-search') ?>" class="btn btn-outline-secondary">
+        <a href="<?= $this->url('invoice-search') ?>" class="btn btn-primary">
             <i class="bi bi-search"></i>
             Recherche
         </a>
+
+        <?php if (($currentUser['role'] ?? '') === 'admin'): ?>
+        <a href="<?= $this->url('users') ?>" class="btn btn-outline-secondary">
+            <i class="bi bi-people"></i>
+            Utilisateurs
+        </a>
+        <?php endif; ?>
 
     </div>
 
@@ -237,7 +290,7 @@ $this->headTitle('Recherche - ERP-AI');
                    placeholder="Ex: Tech Store, INV-2026-001..."
                    value="<?= $this->escapeHtml($query ?? '') ?>"
                    autofocus>
-            <button type="submit" class="btn btn-primary">
+            <button type="submit" class="btn btn-search-submit">
                 Rechercher
             </button>
         </div>
@@ -319,7 +372,7 @@ $this->headTitle('Recherche - ERP-AI');
                                 </td>
 
                                 <td>
-                                    <span class="badge">
+                                    <span class="score-badge">
                                         <?= $this->escapeHtml((string)($r['_score'] ?? '')) ?>%
                                     </span>
                                 </td>

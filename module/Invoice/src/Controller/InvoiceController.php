@@ -93,14 +93,17 @@ class InvoiceController extends AbstractActionController
         $request = $this->getRequest();
 
         if (!$request->isPost()) {
-            return new ViewModel();
+            return new ViewModel([
+                'currentUser' => $this->currentUser,
+            ]);
         }
 
         $files = $this->getRequest()->getFiles()->toArray();
 
         if (empty($files['facture']) || $files['facture']['error'] !== UPLOAD_ERR_OK) {
             return new ViewModel([
-                'error' => 'Aucun fichier valide reçu. Vérifie le format (PDF, JPG, PNG).',
+                'error'       => 'Aucun fichier valide reçu. Vérifie le format (PDF, JPG, PNG).',
+                'currentUser' => $this->currentUser,
             ]);
         }
 
@@ -114,13 +117,15 @@ class InvoiceController extends AbstractActionController
             );
         } catch (\RuntimeException $e) {
             return new ViewModel([
-                'error' => $e->getMessage(),
+                'error'       => $e->getMessage(),
+                'currentUser' => $this->currentUser,
             ]);
         }
 
         if (empty($extracted['success'])) {
             return new ViewModel([
-                'error' => 'Extraction échouée : ' . ($extracted['detail'] ?? 'Erreur inconnue'),
+                'error'       => 'Extraction échouée : ' . ($extracted['detail'] ?? 'Erreur inconnue'),
+                'currentUser' => $this->currentUser,
             ]);
         }
 
@@ -189,8 +194,9 @@ class InvoiceController extends AbstractActionController
                 return $this->redirect()->toRoute('invoice-view', ['id' => $invoiceId]);
             } catch (\RuntimeException $e) {
                 return new ViewModel([
-                    'data'  => $invoiceData,
-                    'error' => $e->getMessage(),
+                    'data'        => $invoiceData,
+                    'error'       => $e->getMessage(),
+                    'currentUser' => $this->currentUser,
                 ]);
             }
         }
@@ -201,7 +207,8 @@ class InvoiceController extends AbstractActionController
         }
 
         return new ViewModel([
-            'data' => $container->data,
+            'data'        => $container->data,
+            'currentUser' => $this->currentUser,
         ]);
     }
 
@@ -218,17 +225,19 @@ class InvoiceController extends AbstractActionController
             $result = $this->apiClient->listInvoices($limit, $offset);
         } catch (\RuntimeException $e) {
             return new ViewModel([
-                'error'    => $e->getMessage(),
-                'invoices' => [],
-                'count'    => 0,
+                'error'       => $e->getMessage(),
+                'invoices'    => [],
+                'count'       => 0,
+                'currentUser' => $this->currentUser,
             ]);
         }
 
         return new ViewModel([
-            'invoices' => $result['results'],
-            'count'    => $result['count'],
-            'page'     => $page,
-            'limit'    => $limit,
+            'invoices'    => $result['results'],
+            'count'       => $result['count'],
+            'page'        => $page,
+            'limit'       => $limit,
+            'currentUser' => $this->currentUser,
         ]);
     }
 
@@ -242,14 +251,14 @@ class InvoiceController extends AbstractActionController
         try {
             $invoice = $this->apiClient->getInvoice($id);
         } catch (\RuntimeException $e) {
-            return new ViewModel(['error' => $e->getMessage()]);
+            return new ViewModel(['error'=>$e->getMessage(),'currentUser'=>$this->currentUser]);
         }
 
         if ($invoice === null) {
-            return new ViewModel(['error' => "Facture #{$id} introuvable."]);
+            return new ViewModel(['error'=>"Facture #{$id} introuvable.",'currentUser'=>$this->currentUser]);
         }
 
-        return new ViewModel(['invoice' => $invoice]);
+        return new ViewModel(['invoice'=>$invoice,'currentUser'=>$this->currentUser]);
     }
 
     // -----------------------------------------------------------------
@@ -260,21 +269,25 @@ class InvoiceController extends AbstractActionController
         $query = trim((string) $this->params()->fromQuery('q', ''));
 
         if ($query === '') {
-            return new ViewModel();
+            return new ViewModel([
+                'currentUser' => $this->currentUser,
+            ]);
         }
 
         try {
             $result = $this->apiClient->search($query, $this->currentUser['licence_key']);
         } catch (\RuntimeException $e) {
             return new ViewModel([
-                'query' => $query,
-                'error' => $e->getMessage(),
+                'query'       => $query,
+                'error'       => $e->getMessage(),
+                'currentUser' => $this->currentUser,
             ]);
         }
 
         return new ViewModel([
-            'query'  => $query,
-            'result' => $result,
+            'query'       => $query,
+            'result'      => $result,
+            'currentUser' => $this->currentUser,
         ]);
     }
 }

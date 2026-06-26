@@ -12,14 +12,40 @@ $this->headTitle('Nouvelle facture - ERP-AI');
     --erp-border:#e2e8f0;
 }
 
-/* BACKGROUND GLOBAL */
 .erp-wrapper{
     padding:30px;
     background:var(--erp-light);
     min-height:100vh;
 }
 
-/* NAVBAR IDENTIQUE DASHBOARD */
+/* PAGE HEADER identique au dashboard */
+.page-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:25px;
+}
+
+.page-title-main{
+    font-size:32px;
+    font-weight:700;
+    color:var(--erp-primary);
+    margin:0;
+}
+
+.page-subtitle-header{
+    color:#64748b;
+    font-size:14px;
+}
+
+.status-badge{
+    padding:10px 18px;
+    border-radius:30px;
+    font-weight:600;
+    font-size:14px;
+}
+
+/* NAVBAR */
 .nav-buttons{
     display:flex;
     gap:10px;
@@ -33,7 +59,7 @@ $this->headTitle('Nouvelle facture - ERP-AI');
     font-weight:600;
 }
 
-/* PAGE CARD STYLE DASHBOARD */
+/* PAGE CARD */
 .page-card{
     background:#fff;
     border-radius:18px;
@@ -41,7 +67,6 @@ $this->headTitle('Nouvelle facture - ERP-AI');
     box-shadow:0 2px 10px rgba(15,23,42,.06);
 }
 
-/* TITRES */
 .page-title{
     color:var(--erp-primary);
     font-size:30px;
@@ -54,7 +79,6 @@ $this->headTitle('Nouvelle facture - ERP-AI');
     margin-bottom:25px;
 }
 
-/* ERROR */
 .erp-error{
     background:#fee2e2;
     color:#991b1b;
@@ -63,7 +87,6 @@ $this->headTitle('Nouvelle facture - ERP-AI');
     margin-bottom:20px;
 }
 
-/* UPLOAD BOX */
 .upload-box{
     border:2px dashed var(--erp-border);
     border-radius:18px;
@@ -107,7 +130,6 @@ $this->headTitle('Nouvelle facture - ERP-AI');
     color:#334155;
 }
 
-/* BUTTON LIKE DASHBOARD */
 .btn-upload{
     margin-top:20px;
     background:var(--erp-accent);
@@ -122,7 +144,6 @@ $this->headTitle('Nouvelle facture - ERP-AI');
     background:#94a3b8;
 }
 
-/* LOADING */
 .loading-box{
     display:none;
     text-align:center;
@@ -146,10 +167,44 @@ $this->headTitle('Nouvelle facture - ERP-AI');
 
 <div class="erp-wrapper">
 
-    <!-- NAVBAR IDENTIQUE DASHBOARD -->
+    <!-- PAGE HEADER identique au dashboard -->
+    <div class="page-header">
+
+        <div>
+            <h1 class="page-title-main">
+                <i class="bi bi-upload"></i>
+                Nouvelle facture
+            </h1>
+            <div class="page-subtitle-header">
+                ERP-AI Control Center / Nouvelle facture
+            </div>
+        </div>
+
+        <div class="d-flex align-items-center gap-2">
+            <?php if ($apiOnline ?? true): ?>
+                <span class="badge bg-success status-badge">
+                    <i class="bi bi-check-circle-fill"></i>
+                    API En ligne
+                </span>
+            <?php else: ?>
+                <span class="badge bg-danger status-badge">
+                    <i class="bi bi-x-circle-fill"></i>
+                    API Hors ligne
+                </span>
+            <?php endif; ?>
+
+            <a href="<?= $this->url('logout') ?>" class="btn btn-outline-danger status-badge">
+                <i class="bi bi-box-arrow-right"></i>
+                Déconnexion
+            </a>
+        </div>
+
+    </div>
+
+    <!-- NAVBAR -->
     <div class="nav-buttons">
 
-        <a href="<?= $this->url('invoice') ?>" class="btn btn-outline-primary">
+        <a href="<?= $this->url('invoice') ?>" class="btn btn-outline-secondary">
             <i class="bi bi-house"></i> Dashboard
         </a>
 
@@ -165,6 +220,12 @@ $this->headTitle('Nouvelle facture - ERP-AI');
             <i class="bi bi-search"></i> Recherche
         </a>
 
+        <?php if (($currentUser['role'] ?? 'admin') === 'admin'): ?>
+            <a href="<?= $this->url('users') ?>" class="btn btn-outline-secondary">
+                <i class="bi bi-people"></i> Utilisateurs
+            </a>
+        <?php endif; ?>
+
     </div>
 
     <!-- CARD -->
@@ -176,7 +237,7 @@ $this->headTitle('Nouvelle facture - ERP-AI');
         </h1>
 
         <div class="page-subtitle">
-            Importez un PDF ou une image — l’IA analyse automatiquement la facture.
+            Importez un PDF ou une image — l'IA analyse automatiquement la facture.
         </div>
 
         <?php if (!empty($error)): ?>
