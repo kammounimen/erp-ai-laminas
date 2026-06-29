@@ -165,15 +165,27 @@ class InvoiceController extends AbstractActionController
 
             $items = [];
             $descriptions = $post['item_description'] ?? [];
+            $productIds   = $post['item_product_id'] ?? [];
+            $newProducts  = $post['item_new_product'] ?? [];
+
             foreach ($descriptions as $i => $desc) {
                 if (trim($desc) === '') {
                     continue;
                 }
+
+                $rawProductId = $productIds[$i] ?? '';
+                $isNewProduct = ($newProducts[$i] ?? '0') === '1';
+
                 $items[] = [
-                    'description' => $desc,
-                    'quantity'    => isset($post['item_quantity'][$i]) ? (float) $post['item_quantity'][$i] : null,
-                    'unit_price'  => isset($post['item_unit_price'][$i]) ? (float) $post['item_unit_price'][$i] : null,
-                    'total_price' => isset($post['item_total_price'][$i]) ? (float) $post['item_total_price'][$i] : null,
+                    'description'  => $desc,
+                    'quantity'     => isset($post['item_quantity'][$i]) ? (float) $post['item_quantity'][$i] : null,
+                    'unit_price'   => isset($post['item_unit_price'][$i]) ? (float) $post['item_unit_price'][$i] : null,
+                    'total_price'  => isset($post['item_total_price'][$i]) ? (float) $post['item_total_price'][$i] : null,
+                    // Résolus par /api/products/check côté frontend avant l'envoi :
+                    // - product_id renseigné  → produit déjà existant, à réutiliser
+                    // - new_product = true    → aucun produit choisi, à créer côté API
+                    'product_id'   => ($rawProductId !== '' && !$isNewProduct) ? (int) $rawProductId : null,
+                    'new_product'  => $isNewProduct,
                 ];
             }
 

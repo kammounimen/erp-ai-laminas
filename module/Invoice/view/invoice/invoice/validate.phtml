@@ -150,6 +150,275 @@ input:focus{
     border-radius:12px;
     margin-bottom:20px;
 }
+
+/* ---------- Badge statut produit (dans la table d'articles) ---------- */
+.product-status{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-size:11px;
+    font-weight:700;
+    padding:5px 10px;
+    border-radius:20px;
+    margin-top:6px;
+    white-space:nowrap;
+}
+
+.product-status.is-pending{
+    background:#f1f5f9;
+    color:#64748b;
+}
+
+.product-status.is-checking{
+    background:#eef2ff;
+    color:var(--erp-accent);
+}
+
+.product-status.is-matched{
+    background:#dcfce7;
+    color:#15803d;
+}
+
+.product-status.is-new{
+    background:#fef3c7;
+    color:#92400e;
+}
+
+.product-status.is-pending-choice{
+    background:#fee2e2;
+    color:#991b1b;
+    cursor:pointer;
+}
+
+.product-status .dot{
+    width:6px;
+    height:6px;
+    border-radius:50%;
+    background:currentColor;
+}
+
+.spin{
+    width:11px;
+    height:11px;
+    border-radius:50%;
+    border:2px solid rgba(99,102,241,.25);
+    border-top-color:var(--erp-accent);
+    animation:erp-spin .6s linear infinite;
+}
+
+@keyframes erp-spin{
+    to{ transform:rotate(360deg); }
+}
+
+/* ---------- Overlay + Modale de sélection produit ---------- */
+.erp-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(15,23,42,.55);
+    backdrop-filter:blur(2px);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:2000;
+    opacity:0;
+    visibility:hidden;
+    transition:opacity .18s ease;
+    padding:20px;
+}
+
+.erp-overlay.is-open{
+    opacity:1;
+    visibility:visible;
+}
+
+.erp-modal{
+    background:#fff;
+    border-radius:20px;
+    width:100%;
+    max-width:520px;
+    max-height:90vh;
+    overflow-y:auto;
+    box-shadow:0 20px 60px rgba(15,23,42,.25);
+    transform:translateY(14px) scale(.98);
+    transition:transform .18s ease;
+}
+
+.erp-overlay.is-open .erp-modal{
+    transform:translateY(0) scale(1);
+}
+
+.erp-modal-header{
+    padding:22px 26px 16px;
+    border-bottom:1px solid var(--erp-border);
+}
+
+.erp-modal-header .eyebrow{
+    font-size:11px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.6px;
+    color:#94a3b8;
+    margin-bottom:6px;
+}
+
+.erp-modal-header h3{
+    font-size:18px;
+    font-weight:700;
+    color:var(--erp-primary);
+    margin:0;
+}
+
+.detected-chip{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    background:#f8fafc;
+    border:1px solid var(--erp-border);
+    border-radius:12px;
+    padding:10px 14px;
+    margin-top:14px;
+    font-size:14px;
+    font-weight:600;
+    color:var(--erp-secondary);
+}
+
+.detected-chip svg{
+    flex-shrink:0;
+    color:var(--erp-accent);
+}
+
+.erp-modal-body{
+    padding:18px 26px;
+}
+
+.section-label{
+    font-size:12px;
+    font-weight:700;
+    color:#64748b;
+    margin-bottom:10px;
+}
+
+.suggestion-list{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    margin-bottom:8px;
+}
+
+.suggestion-option{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    border:1.5px solid var(--erp-border);
+    border-radius:14px;
+    padding:12px 14px;
+    cursor:pointer;
+    transition:.15s;
+    background:#fff;
+}
+
+.suggestion-option:hover{
+    border-color:#c7d2fe;
+    background:#f8fafc;
+}
+
+.suggestion-option.is-selected{
+    border-color:var(--erp-accent);
+    background:#eef2ff;
+}
+
+.suggestion-option input[type="radio"]{
+    width:18px;
+    height:18px;
+    accent-color:var(--erp-accent);
+    flex-shrink:0;
+    margin:0;
+}
+
+.suggestion-option .opt-text{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+}
+
+.suggestion-option .opt-name{
+    font-size:14px;
+    font-weight:600;
+    color:var(--erp-primary);
+}
+
+.suggestion-option .opt-sub{
+    font-size:12px;
+    color:#94a3b8;
+}
+
+.score-pill{
+    font-size:12px;
+    font-weight:700;
+    padding:4px 10px;
+    border-radius:20px;
+    flex-shrink:0;
+}
+
+.score-pill.score-high{ background:#dcfce7; color:#15803d; }
+.score-pill.score-mid{ background:#fef3c7; color:#92400e; }
+.score-pill.score-low{ background:#f1f5f9; color:#64748b; }
+
+.suggestion-option.new-product-option{
+    border-style:dashed;
+}
+
+.suggestion-option.new-product-option .opt-name{
+    color:var(--erp-accent);
+}
+
+.empty-suggestions{
+    font-size:13px;
+    color:#94a3b8;
+    background:#f8fafc;
+    border-radius:12px;
+    padding:14px;
+    text-align:center;
+    margin-bottom:8px;
+}
+
+.erp-modal-footer{
+    display:flex;
+    justify-content:flex-end;
+    gap:10px;
+    padding:18px 26px 24px;
+}
+
+.btn-primary:disabled{
+    opacity:.5;
+    cursor:not-allowed;
+}
+
+/* ---------- Bandeau de progression pendant validateProducts() ---------- */
+.validating-banner{
+    display:none;
+    align-items:center;
+    gap:12px;
+    background:#eef2ff;
+    border:1px solid #c7d2fe;
+    color:var(--erp-accent);
+    border-radius:14px;
+    padding:14px 18px;
+    margin-bottom:20px;
+    font-size:14px;
+    font-weight:600;
+}
+
+.validating-banner.is-active{
+    display:flex;
+}
+
+.validating-banner .spin{
+    width:16px;
+    height:16px;
+    border-width:2.5px;
+}
 </style>
 
 <div class="erp-wrapper">
@@ -169,7 +438,12 @@ input:focus{
         </div>
     <?php endif; ?>
 
-    <form method="post" action="<?= $this->url('invoice-validate') ?>">
+    <div class="validating-banner" id="validating-banner">
+        <span class="spin"></span>
+        <span id="validating-banner-text">Vérification des produits en cours…</span>
+    </div>
+
+    <form method="post" action="<?= $this->url('invoice-validate') ?>" id="invoice-form">
 
         <!-- INFO FACTURE -->
         <div class="erp-card">
@@ -253,6 +527,7 @@ input:focus{
                     <th>Qté</th>
                     <th>Prix unit.</th>
                     <th>Total</th>
+                    <th>Produit</th>
                 </tr>
                 </thead>
 
@@ -263,6 +538,13 @@ input:focus{
                         <td><input name="item_quantity[]" value="<?= v($item['quantity'] ?? '') ?>"></td>
                         <td><input name="item_unit_price[]" value="<?= v($item['unit_price'] ?? '') ?>"></td>
                         <td><input name="item_total_price[]" value="<?= v($item['total_price'] ?? '') ?>"></td>
+                        <td>
+                            <input type="hidden" name="item_product_id[]" value="">
+                            <input type="hidden" name="item_new_product[]" value="0">
+                            <span class="product-status is-pending">
+                                <span class="dot"></span> En attente
+                            </span>
+                        </td>
                     </tr>
                 <?php endforeach; ?>
                 </tbody>
@@ -306,7 +588,7 @@ input:focus{
                 Annuler
             </a>
 
-            <button type="submit" class="btn-primary">
+            <button type="button" class="btn-primary" id="confirm-btn" onclick="validateProducts()">
                 Confirmer
             </button>
         </div>
@@ -314,7 +596,55 @@ input:focus{
     </form>
 </div>
 
+<!-- ================= MODALE DE SÉLECTION PRODUIT ================= -->
+<div class="erp-overlay" id="product-modal-overlay">
+    <div class="erp-modal">
+        <div class="erp-modal-header">
+            <div class="eyebrow">Vérification produit</div>
+            <h3>Ce produit existe-t-il déjà ?</h3>
+
+            <div class="detected-chip">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20.59 13.41 11 3.83 3.83 11l9.58 9.58a2 2 0 0 0 2.83 0l4.35-4.35a2 2 0 0 0 0-2.82Z"/>
+                    <circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/>
+                </svg>
+                <span id="modal-detected-name">—</span>
+            </div>
+        </div>
+
+        <div class="erp-modal-body">
+            <div class="section-label" id="modal-section-label">Produits similaires trouvés</div>
+
+            <div class="suggestion-list" id="modal-suggestion-list">
+                <!-- options injectées par JS -->
+            </div>
+
+            <label class="suggestion-option new-product-option" id="modal-new-product-option">
+                <input type="radio" name="modal-product-choice" value="__new__">
+                <span class="opt-text">
+                    <span class="opt-name">+ Créer un nouveau produit</span>
+                    <span class="opt-sub">Aucune des suggestions ne correspond</span>
+                </span>
+            </label>
+        </div>
+
+        <div class="erp-modal-footer">
+            <button type="button" class="btn-secondary" id="modal-cancel-btn">Annuler la validation</button>
+            <button type="button" class="btn-primary" id="modal-confirm-btn" disabled>Valider ce choix</button>
+        </div>
+    </div>
+</div>
+
 <script>
+/* =========================================================
+   0) URL de base de l'API Python (FastAPI)
+   À adapter si le port ou le domaine change (ex: en production).
+   ========================================================= */
+const PYTHON_API_BASE = 'http://127.0.0.1:8001';
+
+/* =========================================================
+   1) Ajout dynamique d'une ligne d'article
+   ========================================================= */
 function addItemRow(){
     const tbody = document.getElementById('items-body');
 
@@ -324,8 +654,227 @@ function addItemRow(){
         <td><input name="item_quantity[]"></td>
         <td><input name="item_unit_price[]"></td>
         <td><input name="item_total_price[]"></td>
+        <td>
+            <input type="hidden" name="item_product_id[]" value="">
+            <input type="hidden" name="item_new_product[]" value="0">
+            <span class="product-status is-pending">
+                <span class="dot"></span> En attente
+            </span>
+        </td>
     `;
 
     tbody.appendChild(row);
+}
+
+/* =========================================================
+   2) Aides : statut visuel par ligne + score
+   ========================================================= */
+function setRowStatus(row, state, label) {
+    const span = row.querySelector('.product-status');
+    span.className = 'product-status ' + state;
+
+    if (state === 'is-checking') {
+        span.innerHTML = '<span class="spin"></span> ' + label;
+    } else if (state === 'is-pending-choice') {
+        span.innerHTML = '<span class="dot"></span> ' + label;
+    } else {
+        span.innerHTML = '<span class="dot"></span> ' + label;
+    }
+}
+
+function scoreClass(score) {
+    if (score >= 90) return 'score-high';
+    if (score >= 75) return 'score-mid';
+    return 'score-low';
+}
+
+/* =========================================================
+   3) Modale de sélection produit
+   ========================================================= */
+const overlay        = document.getElementById('product-modal-overlay');
+const detectedNameEl = document.getElementById('modal-detected-name');
+const sectionLabelEl = document.getElementById('modal-section-label');
+const listEl          = document.getElementById('modal-suggestion-list');
+const newOptionEl    = document.getElementById('modal-new-product-option');
+const confirmBtn      = document.getElementById('modal-confirm-btn');
+const cancelBtn       = document.getElementById('modal-cancel-btn');
+
+let modalResolver = null; // résout la Promise en attente quand l'utilisateur choisit
+
+function openProductModal(description, suggestions) {
+    detectedNameEl.textContent = description;
+    listEl.innerHTML = '';
+    confirmBtn.disabled = true;
+    newOptionEl.querySelector('input').checked = false;
+    newOptionEl.classList.remove('is-selected');
+
+    if (suggestions && suggestions.length > 0) {
+        sectionLabelEl.textContent = 'Produits similaires trouvés';
+
+        suggestions.forEach((s, idx) => {
+            const label = document.createElement('label');
+            label.className = 'suggestion-option';
+            label.innerHTML = `
+                <input type="radio" name="modal-product-choice" value="${s.id}">
+                <span class="opt-text">
+                    <span class="opt-name">${escapeHtml(s.name)}</span>
+                    <span class="opt-sub">Produit existant #${s.id}</span>
+                </span>
+                <span class="score-pill ${scoreClass(s.score)}">${s.score}%</span>
+            `;
+            listEl.appendChild(label);
+        });
+    } else {
+        sectionLabelEl.textContent = 'Aucun produit similaire trouvé';
+        const empty = document.createElement('div');
+        empty.className = 'empty-suggestions';
+        empty.textContent = 'Ce produit semble nouveau dans le catalogue.';
+        listEl.appendChild(empty);
+    }
+
+    // Gère la sélection visuelle (radio -> highlight + activation du bouton)
+    overlay.querySelectorAll('input[name="modal-product-choice"]').forEach(radio => {
+        radio.addEventListener('change', onModalChoiceChange);
+    });
+
+    overlay.classList.add('is-open');
+
+    return new Promise((resolve) => {
+        modalResolver = resolve;
+    });
+}
+
+function onModalChoiceChange() {
+    overlay.querySelectorAll('.suggestion-option').forEach(opt => opt.classList.remove('is-selected'));
+    const checked = overlay.querySelector('input[name="modal-product-choice"]:checked');
+    if (checked) {
+        checked.closest('.suggestion-option').classList.add('is-selected');
+        confirmBtn.disabled = false;
+    }
+}
+
+function closeProductModal() {
+    overlay.classList.remove('is-open');
+    overlay.querySelectorAll('input[name="modal-product-choice"]').forEach(radio => {
+        radio.removeEventListener('change', onModalChoiceChange);
+    });
+}
+
+confirmBtn.addEventListener('click', () => {
+    const checked = overlay.querySelector('input[name="modal-product-choice"]:checked');
+    if (!checked || !modalResolver) return;
+
+    const value = checked.value;
+    closeProductModal();
+
+    if (value === '__new__') {
+        modalResolver({ productId: null, isNew: true });
+    } else {
+        modalResolver({ productId: parseInt(value, 10), isNew: false });
+    }
+    modalResolver = null;
+});
+
+cancelBtn.addEventListener('click', () => {
+    closeProductModal();
+    if (modalResolver) {
+        modalResolver({ cancelled: true });
+        modalResolver = null;
+    }
+});
+
+function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str ?? '';
+    return div.innerHTML;
+}
+
+/* =========================================================
+   4) Validation de chaque article via /api/products/check
+   ========================================================= */
+async function validateProducts() {
+    const rows = Array.from(document.querySelectorAll('#items-body tr'));
+    const banner = document.getElementById('validating-banner');
+    const bannerText = document.getElementById('validating-banner-text');
+    const confirmButton = document.getElementById('confirm-btn');
+
+    confirmButton.disabled = true;
+    banner.classList.add('is-active');
+
+    for (let i = 0; i < rows.length; i++) {
+        const row = rows[i];
+        const descInput = row.querySelector('input[name="item_description[]"]');
+        const description = (descInput.value || '').trim();
+
+        if (description === '') {
+            continue; // ligne vide, on l'ignore (le contrôleur la filtre déjà)
+        }
+
+        bannerText.textContent = `Vérification "${description}" (${i + 1}/${rows.length})…`;
+        setRowStatus(row, 'is-checking', 'Vérification…');
+
+        let result;
+        try {
+            const response = await fetch(PYTHON_API_BASE + '/api/products/check', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ description })
+            });
+
+            if (!response.ok) {
+                throw new Error('Réponse API invalide (' + response.status + ')');
+            }
+
+            result = await response.json();
+        } catch (err) {
+            banner.classList.remove('is-active');
+            confirmButton.disabled = false;
+            setRowStatus(row, 'is-pending', 'En attente');
+            alert("Impossible de vérifier le produit \"" + description + "\" : " + err.message);
+            return; // on stoppe tout, l'utilisateur peut réessayer
+        }
+
+        const productIdField = row.querySelector('input[name="item_product_id[]"]');
+        const newProductField = row.querySelector('input[name="item_new_product[]"]');
+
+        if (result.exists) {
+            productIdField.value = result.product_id;
+            newProductField.value = '0';
+            setRowStatus(row, 'is-matched', result.product_name || 'Produit reconnu');
+            continue;
+        }
+
+        // Produit inconnu : on ouvre la modale et on attend le choix utilisateur
+        banner.classList.remove('is-active');
+        setRowStatus(row, 'is-pending-choice', 'Choix requis');
+
+        const choice = await openProductModal(description, result.suggestions || []);
+
+        if (choice.cancelled) {
+            confirmButton.disabled = false;
+            setRowStatus(row, 'is-pending', 'En attente');
+            return; // l'utilisateur a annulé : on arrête toute la validation
+        }
+
+        if (choice.isNew) {
+            productIdField.value = '';
+            newProductField.value = '1';
+            setRowStatus(row, 'is-new', 'Nouveau produit');
+        } else {
+            productIdField.value = choice.productId;
+            newProductField.value = '0';
+            const chosenName = (result.suggestions || []).find(s => s.id === choice.productId);
+            setRowStatus(row, 'is-matched', chosenName ? chosenName.name : 'Produit sélectionné');
+        }
+
+        banner.classList.add('is-active');
+    }
+
+    banner.classList.remove('is-active');
+    bannerText.textContent = 'Tous les produits sont validés. Enregistrement…';
+    banner.classList.add('is-active');
+
+    // Toutes les lignes sont validées : on soumet réellement le formulaire
+    document.getElementById('invoice-form').submit();
 }
 </script>
