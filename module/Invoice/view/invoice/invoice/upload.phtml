@@ -302,8 +302,11 @@ const submitBtn = document.getElementById('submit-btn');
 const form = document.getElementById('upload-form');
 const loadingBox = document.getElementById('loading-box');
 
-uploadBox.addEventListener('click', () => fileInput.click());
-
+// APRÈS
+uploadBox.addEventListener('click', (e) => {
+    if (e.target === submitBtn || submitBtn.contains(e.target)) return;
+    fileInput.click();
+});
 fileInput.addEventListener('change', () => {
     if(fileInput.files.length){
         fileNameEl.textContent = fileInput.files[0].name;
